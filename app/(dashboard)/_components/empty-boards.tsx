@@ -5,7 +5,7 @@ import { useMutation } from "convex/react";
 
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
-import { ClerkLoading, useOrganization } from "@clerk/nextjs";
+import { useOrganization } from "@clerk/nextjs";
 import { useApiMutation } from "@/hooks/use-api-mutation";
 import { LoaderCircleIcon } from "lucide-react";
 import { toast } from "sonner";
