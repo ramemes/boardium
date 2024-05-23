@@ -25,7 +25,7 @@ export const UserAvatar = ({
         className="h-8 w-8 border-2"
         style={{ borderColor}}
       >
-        <AvatarImage src={src} />
+        <AvatarImage src={src} className="select-none"/>
         <AvatarFallback className="text-xs font-semibold">
           {fallback}
         </AvatarFallback>

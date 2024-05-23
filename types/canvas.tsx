@@ -9,6 +9,10 @@ export type Camera = {
   y: number;
 };
 
+// export type Zoom = {
+//   scale: number;
+// };
+
 export enum LayerType {
   Rectangle,
   Ellipse,

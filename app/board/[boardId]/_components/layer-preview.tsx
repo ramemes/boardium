@@ -38,13 +38,8 @@ export const LayerPreview = memo(({
       console.warn("Unknown layer type");
       return null;
   }
-
-  return (
-    <div>
-
-    </div>
-  );
 });
+
 
 
 LayerPreview.displayName = "LayerPreview";

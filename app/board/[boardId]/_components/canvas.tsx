@@ -6,6 +6,7 @@ import {
   useCanUndo,
   useMutation,
   useStorage,
+  useOthersMapped,
 } from "@/liveblocks.config";
 
 import { Info } from "./info";
@@ -18,17 +19,22 @@ import {
   CanvasState, 
   Color, 
   LayerType, 
-  Point
+  Point,
+  Side,
+  XYWH,
+  // Zoom
 } from "@/types/canvas";
 
 import { nanoid } from "nanoid";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { CursorsPresence } from "./cursors-presence";
-import { pointerEventToCanvasPoint } from "@/lib/utils";
+import { connectionIdToColor, pointerEventToCanvasPoint } from "@/lib/utils";
 
 import { LiveObject } from "@liveblocks/client";
 
 import { LayerPreview } from "./layer-preview";
+import { Cursor } from "./cursor";
+import { SelectionBox } from "./selection-box";
 
 const MAX_LAYERS = 100;
 
@@ -46,12 +52,14 @@ export const Canvas = ({
     mode: CanvasMode.None
   });
 
+  // const [zoom, setZoom] = useState<Zoom>({ scale: 1})
   const [camera, setCamera] = useState<Camera>({ x:0, y:0})
   const [lastUsedColor, setLastUsedColor] = useState<Color>({
-    r:0,
-    g:0,
-    b:0,
+    r:150,
+    g:150,
+    b:150,
   })
+
 
   const history = useHistory();
   const canUndo = useCanUndo();
@@ -92,19 +100,70 @@ export const Canvas = ({
   [lastUsedColor]
 );
 
+  // const onWheel = useMutation(({ setMyPresence }, e: React.WheelEvent) => {
+  //     e.preventDefault()
+  //     console.log(e)
+  //     if (e.shiftKey) {
+  //       setCamera((camera) => ({
+  //         x: camera.x - e.deltaY,
+  //         y: camera.y,
+  //       }))
+  //     } 
+
+  //     else {
+  //       setCamera((camera) => ({
+  //         x: camera.x - e.deltaX,
+  //         y: camera.y - e.deltaY,
+  //       }))
+  //     }
+
+  //     console.log(e)
+
+  //     setMyPresence({cursor: camera})
+  //   }, [
+  //     camera
+  //   ])
+
+  const onResizeHandlePointerDown = useCallback((
+    corner: Side,
+    initialBounds: XYWH,
+  ) => {
+    history.pause();
+    setCanvasState({
+      mode: CanvasMode.Resizing,
+      initialBounds,
+      corner
+    });
+  }, [history])
+  
+
   const onWheel = useCallback((e: React.WheelEvent) => {
-    setCamera((camera) => ({
-      x: camera.x - e.deltaX,
-      y: camera.y - e.deltaY
-    }))
-  }, []);
+    e.preventDefault()
+    if (e.shiftKey) {
+      setCamera((camera) => ({
+        x: camera.x - e.deltaY,
+        y: camera.y,
+      }))
+    } 
+    else {
+      setCamera((camera) => ({
+        x: camera.x - e.deltaX,
+        y: camera.y - e.deltaY,
+      }))
+    }
+
+  }, [])
 
   const onPointerMove = useMutation(({ setMyPresence }, e: React.PointerEvent) => {
     e.preventDefault();
     const current = pointerEventToCanvasPoint(e, camera);
 
+    if (canvasState.mode === CanvasMode.Resizing) {
+      console.log("resizing")
+    }
+
     setMyPresence({cursor: current})
-  }, [])
+  }, [canvasState])
 
   const onPointerLeave = useMutation(({ setMyPresence }, e: React.PointerEvent) => {
     setMyPresence({cursor: null})
@@ -115,15 +174,7 @@ export const Canvas = ({
     e
   ) => {
     const point = pointerEventToCanvasPoint(e,camera);
-    console.log({
-      point,
-      mode: canvasState.mode,
-    })
 
-    console.log({
-      point,
-      mode: canvasState.mode
-    })
 
     if (canvasState.mode === CanvasMode.Inserting) {
       insertLayer(canvasState.layerType, point);
@@ -141,6 +192,51 @@ export const Canvas = ({
     insertLayer,
   ]);
 
+  const selections = useOthersMapped((other) => other.presence.selection)
+
+  const onLayerPointerDown = useMutation((
+    { self, setMyPresence },
+    e: React.PointerEvent,
+    layerId: string,
+  ) => {
+    if (
+      canvasState.mode === CanvasMode.Pencil || 
+      canvasState.mode === CanvasMode.Inserting
+    ) {
+      return;
+    }
+
+    history.pause();
+    e.stopPropagation();
+
+    const point = pointerEventToCanvasPoint(e, camera)
+
+    if (!self.presence.selection.includes(layerId)) {
+      setMyPresence({ selection: [layerId] });
+    }
+    setCanvasState({ mode: CanvasMode.Translating, current: point})
+
+  }, 
+  [
+    setCanvasState,
+    camera,
+    history,
+    canvasState.mode,
+  ]);
+
+  const layerIdsToColorSelection = useMemo(() => {
+    const layerIdsToColorSelection: Record<string, string> = {};
+
+    for (const user of selections) {
+      const [connectionId, selection] = user;
+
+      for (const layerId of selection) {
+        layerIdsToColorSelection[layerId] = connectionIdToColor(connectionId)
+      }
+    }
+    return layerIdsToColorSelection
+  }, [selections])
+
   return (
     <main
       className="h-full w-full relative bg-neutral-100 touch-none"
@@ -150,12 +246,12 @@ export const Canvas = ({
       <ToolBar 
         canvasState={canvasState} 
         setCanvasState={setCanvasState}
-        canRedo={canUndo}
-        canUndo={canRedo}
+        canRedo={canRedo}
+        canUndo={canUndo}
         undo={history.undo}
         redo={history.redo}
       />
-      <svg
+      <svg 
         className="h-[100vh] w-[100vw]"
         onWheel={onWheel}
         onPointerMove={onPointerMove}
@@ -164,17 +260,22 @@ export const Canvas = ({
       >
         <g
           style={{
-            transform: `translate(${camera.x}px, ${camera.y}px)`
+            transform: `translate(${camera.x}px, ${camera.y}px)`,
+            // transform: `  translate(-100px, 100px)`,
+            // scale: `${zoom.scale}`,
           }}
         >
           {layerIds.map((layerId) => (
             <LayerPreview
               key={layerId}
               id={layerId}
-              onLayerPointerDown={() => {}}
-              selectionColor="#000000"
+              onLayerPointerDown={onLayerPointerDown}
+              selectionColor={layerIdsToColorSelection[layerId]}
             />
           ))}
+          <SelectionBox 
+            onResizeHandlePointerDown={onResizeHandlePointerDown}
+          />
           <CursorsPresence />
         </g>
       </svg>

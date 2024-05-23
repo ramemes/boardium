@@ -27,7 +27,7 @@ const font = Poppins({
 
 const TabSeparator = () => {
   return (
-    <div className="text-neutral-300 px-1.5">
+    <div className="text-neutral-300 px-1.5 select-none">
       |    
     </div>
   )
@@ -51,13 +51,14 @@ export const Info = ({
           <Button asChild variant="board" className="px-2">
           <Link  href="/">
             <Image
+              className="select-none"
               src="/logo.svg"
               alt="Board logo"
               height={40}
               width={40}
             />
             <span className={cn(
-              "font-semibold text-xl ml-2 text-black",
+              "font-semibold text-xl ml-2 text-black select-none",
               font.className
             )}>
               Boardium
@@ -69,7 +70,7 @@ export const Info = ({
         <Hint label="Edit title" side="bottom" sideOffset={10}>
           <Button
             variant="board"
-            className="text-base font-normal px-2"
+            className="text-base font-normal px-2 select-none"
             onClick={() => onOpen(data._id, data.title)}
           >
             {data.title}
