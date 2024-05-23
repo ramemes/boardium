@@ -2,7 +2,7 @@
 
 import { useSelectionBounds } from "@/hooks/use-selection-bounds";
 import { useSelf, useStorage } from "@/liveblocks.config";
-import { LayerType, Side, XYWH } from "@/types/canvas";
+import { LayerType, Point, Side, XYWH } from "@/types/canvas";
 import { memo } from "react";
 
 interface SelectionBoxProps {
@@ -39,6 +39,9 @@ export const SelectionBox = memo(({
         y={0}
         width={bounds.width}
         height={bounds.height}
+        onPointerDown={(e) => {
+          e.stopPropagation();
+        }}
       /> 
        {isShowingHandles && (
         <>
