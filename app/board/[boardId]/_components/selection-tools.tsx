@@ -23,6 +23,48 @@ export const SelectionTools = memo((
 
   const selection = useSelf((me) => me.presence.selection);
 
+  const moveToBack = useMutation((
+    { storage }
+  ) => {
+    const liveLayerIds = storage.get("layerIds")
+    const indices: number[] = []
+
+    const arr = liveLayerIds.toArray()
+
+    for (let i = 0; i < arr.length; i++) {
+      if (selection.includes(arr[i])) {
+        indices.push(i)
+      }
+    }   
+
+    for (let i=0; i < indices.length; i++) {
+      liveLayerIds.move(indices[i], i)
+    }
+
+  }, [selection])
+
+  const bringToFront = useMutation((
+    { storage }
+  ) => {
+    const liveLayerIds = storage.get("layerIds");
+    const indices: number[] = [];
+
+    const arr = liveLayerIds.toArray();
+
+    for (let i = 0; i < arr.length; i++) {
+      if (selection.includes(arr[i])) {
+        indices.push(i);
+      }
+    }
+
+    for (let i = indices.length - 1; i >= 0; i--) {
+      liveLayerIds.move(
+        indices[i], 
+        arr.length - 1 - (indices.length - i - 1)
+      );
+    }
+  }, [selection]);
+
   const setFill = useMutation((
     { storage },
     fill: Color
@@ -55,33 +97,48 @@ export const SelectionTools = memo((
         transform: `translate(
           calc(${x}px - 50%),
           calc(${y-16}px - 100%)
-        )`
+        )`,
+        width: "280px",
+        height: "100px"
       }}
     >
       <ColorPicker 
         onChange={setFill}
       />
       <div className="flex flex-col gap-y-0.5">
-        <Hint label="Bring to front">
+        <Hint 
+          label="Bring to front" 
+          sideOffset={13}
+        > 
           <Button
             variant="board"
             size="icon"
           >
-            <BringToFront/>
+            <BringToFront
+              onClick={bringToFront}
+            />
           </Button>
         </Hint>
-        <Hint label="Send to back">
+        <Hint 
+          label="Send to back"
+          sideOffset={55}
+        >
           <Button
             variant="board"
             size="icon"
           >
-            <SendToBack/>
+            <SendToBack
+              onClick={moveToBack}
+            />
           </Button>
         </Hint>
 
       </div>
       <div className="flex items-center pl-2 ml-2 border-l border-neutral-200">
-        <Hint label="Delete">
+        <Hint 
+          label="Delete"
+          sideOffset={15}
+        >
           <Button
             variant="board"
             size="icon"
