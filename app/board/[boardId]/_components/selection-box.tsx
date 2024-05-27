@@ -28,6 +28,7 @@ export const SelectionBox = memo(({
   }
 
 
+
   return (
     <>
       <rect
@@ -62,21 +63,21 @@ export const SelectionBox = memo(({
             }}
           />
 
-          <rect 
-            className="fill-white stroke-1 stroke-blue-500"
-            x={0}
-            y={0}
-            style={{
-              cursor: "ns-resize",
-              width: `${HANDLE_WIDTH}px`,
-              height: `${HANDLE_WIDTH}px`,
-              transform: `translate(${bounds.x + bounds.width / 2 - HANDLE_WIDTH / 2}px, ${bounds.y - HANDLE_WIDTH / 2}px)`
-            }}
-            onPointerDown={(e) => {
-              e.stopPropagation();
-              onResizeHandlePointerDown(Side.Top, bounds);
-            }}
-          />
+            <rect 
+              className="fill-blue-500 stroke-transparent stroke-[8px]"
+              x={0}
+              y={0}
+              style={{
+                cursor: "ns-resize",
+                width: `${bounds.width  - 16}px`,
+                height: `${1}px`,
+                transform: `translate(${bounds.x + 8}px, ${bounds.y}px)`
+              }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                onResizeHandlePointerDown(Side.Top, bounds);
+              }}
+            />
 
           <rect 
             className="fill-white stroke-1 stroke-blue-500"
@@ -94,21 +95,21 @@ export const SelectionBox = memo(({
             }}
           />
 
-          <rect 
-            className="fill-white stroke-1 stroke-blue-500"
-            x={0}
-            y={0}
-            style={{
-              cursor: "ew-resize",
-              width: `${HANDLE_WIDTH}px`,
-              height: `${HANDLE_WIDTH}px`,
-              transform: `translate(${bounds.x + bounds.width - HANDLE_WIDTH / 2}px, ${bounds.y + bounds.height / 2 - HANDLE_WIDTH / 2}px)`
-            }}
-            onPointerDown={(e) => {
-              e.stopPropagation();
-              onResizeHandlePointerDown(Side.Right, bounds);
-            }}
-          />    
+            <rect 
+              className="fill-blue-500 stroke-transparent stroke-[8px]"
+              x={0}
+              y={0}
+              style={{
+                cursor: "ew-resize",
+                width: `${1}px`,
+                height: `${bounds.height- 16}px`,
+                transform: `translate(${bounds.x + bounds.width}px, ${bounds.y + 8}px)`
+              }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                onResizeHandlePointerDown(Side.Right, bounds);
+              }}
+            />    
 
           <rect 
             className="fill-white stroke-1 stroke-blue-500"
@@ -126,21 +127,22 @@ export const SelectionBox = memo(({
             }}
           />
 
-          <rect 
-            className="fill-white stroke-1 stroke-blue-500"
-            x={0}
-            y={0}
-            style={{
-              cursor: "ns-resize",
-              width: `${HANDLE_WIDTH}px`,
-              height: `${HANDLE_WIDTH}px`,
-              transform: `translate(${bounds.x + bounds.width / 2 - HANDLE_WIDTH / 2}px, ${bounds.y + bounds.height - HANDLE_WIDTH / 2}px)`
-            }}
-            onPointerDown={(e) => {
-              e.stopPropagation();
-              onResizeHandlePointerDown(Side.Bottom, bounds);
-            }}
-          />
+            <rect 
+              className="fill-blue-500 stroke-transparent stroke-[8px]"
+              x={0}
+              y={0}
+              style={{
+                cursor: "ns-resize",
+                width: `${bounds.width - 16}px`,
+                height: `${1}px`,
+                transform: `translate(${bounds.x + 8}px, ${bounds.y + bounds.height}px)`
+              }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                onResizeHandlePointerDown(Side.Bottom, bounds);
+              }}
+            />
+
 
           <rect 
             className="fill-white stroke-1 stroke-blue-500"
@@ -158,21 +160,21 @@ export const SelectionBox = memo(({
             }}
           />
 
-          <rect 
-            className="fill-white stroke-1 stroke-blue-500"
-            x={0}
-            y={0}
-            style={{
-              cursor: "ew-resize",
-              width: `${HANDLE_WIDTH}px`,
-              height: `${HANDLE_WIDTH}px`,
-              transform: `translate(${bounds.x - HANDLE_WIDTH / 2}px, ${bounds.y + bounds.height / 2 - HANDLE_WIDTH / 2}px)`
-            }}
-            onPointerDown={(e) => {
-              e.stopPropagation();
-              onResizeHandlePointerDown(Side.Left, bounds);
-            }}
-          />
+            <rect 
+              className="fill-blue-500 stroke-transparent stroke-[8px]"
+              x={0}
+              y={0}
+              style={{
+                cursor: "ew-resize",
+                width: `${1}px`,
+                height: `${bounds.height- 16}px`,
+                transform: `translate(${bounds.x}px, ${bounds.y + 8}px)`
+              }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                onResizeHandlePointerDown(Side.Left, bounds);
+              }}
+            />   
 
         </> 
        )} 

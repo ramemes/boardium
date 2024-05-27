@@ -35,6 +35,8 @@ import { LiveObject } from "@liveblocks/client";
 import { LayerPreview } from "./layer-preview";
 import { Cursor } from "./cursor";
 import { SelectionBox } from "./selection-box";
+import { SelectionTools } from "./selection-tools";
+import { useDeleteLayers } from "@/hooks/use-delete-layers";
 
 const MAX_LAYERS = 100;
 
@@ -60,10 +62,11 @@ export const Canvas = ({
     b:150,
   })
 
-
+  const deleteLayers = useDeleteLayers()
   const history = useHistory();
   const canUndo = useCanUndo();
   const canRedo = useCanRedo();
+
 
   const insertLayer = useMutation(
     (
@@ -95,6 +98,13 @@ export const Canvas = ({
     liveLayers.set(layerId, layer);
 
     setMyPresence({ selection: [layerId] }, { addToHistory: true });
+    // onResizeHandlePointerDown(
+    //   Side.Bottom + Side.Right, 
+    //   {x: position.x,
+    //   y: position.y,
+    //   height: 100,
+    //   width: 100}
+    // )
     setCanvasState({ mode: CanvasMode.None });
   }, 
   [lastUsedColor]
@@ -138,7 +148,7 @@ export const Canvas = ({
 
 
   const onWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault()
+    // e.preventDefault()
     if (e.shiftKey) {
       setCamera((camera) => ({
         x: camera.x - e.deltaY,
@@ -219,6 +229,7 @@ export const Canvas = ({
 
   const onPointerMove = useMutation(({ setMyPresence }, e: React.PointerEvent) => {
     e.preventDefault();
+    history.pause()
     const current = pointerEventToCanvasPoint(e, camera);
 
     if (canvasState.mode === CanvasMode.Translating) {
@@ -271,9 +282,11 @@ export const Canvas = ({
       setCanvasState({
         mode: CanvasMode.None,
       })
-    } else if (canvasState.mode === CanvasMode.Inserting) {
+    } 
+    else if (canvasState.mode === CanvasMode.Inserting) {
       insertLayer(canvasState.layerType, point);
-    } else {
+    } 
+    else {
       setCanvasState({
         mode: CanvasMode.None,
       });
@@ -334,9 +347,15 @@ export const Canvas = ({
     return layerIdsToColorSelection
   }, [selections])
 
+
+  
+
+  
+
   return (
     <main
       className="h-full w-full relative bg-neutral-100 touch-none"
+      
     >
       <Info boardId={boardId}/>
       <Participants/>
@@ -348,6 +367,10 @@ export const Canvas = ({
         undo={history.undo}
         redo={history.redo}
       />
+      <SelectionTools 
+        camera={camera}
+        setLastUsedColor={setLastUsedColor}
+      />
       <svg 
         className="h-[100vh] w-[100vw]"
         onWheel={onWheel}
@@ -357,6 +380,7 @@ export const Canvas = ({
         onPointerDown={onPointerDown}
       >
         <g
+          
           style={{
             transform: `translate(${camera.x}px, ${camera.y}px)`,
             // transform: `  translate(-100px, 100px)`,
