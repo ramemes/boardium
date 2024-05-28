@@ -31,7 +31,7 @@ export const EmptyOrg = () => {
             </Button>
           </DialogTrigger>
           <DialogContent className="p-0 bg-transparent border-none max-w-[480px]">
-            <CreateOrganization routing="hash"/>
+            <CreateOrganization />
           </DialogContent>
         </Dialog>
       </div>
