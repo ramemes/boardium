@@ -60,18 +60,18 @@ export const Text = ({
       height={height}
       onPointerDown={(e) => onPointerDown(e, id)}
       style={{
-        outline: selectionColor ? `1px solid ${(selectionColor)}` : "none"
+        outline: selectionColor ? `1px solid ${(selectionColor)}` : "none",
       }}
     >
       <ContentEditable 
         html={value || "Text"}
         onChange={handleContentChange}
         className={cn(
-          "h-full w-full flex items-center justify-center text-center drop-shadow-md outline-none",
+          "h-full w-full flex items-center justify-center text-center drop-shadow-md outline-none p-10",
           font.className
         )}
         style={{
-          fontSize: calculateFontSize(width, height),
+          // fontSize: calculateFontSize(width, height),
           color: fill ? colorToCss(fill) : "#000", 
         }}
       />
